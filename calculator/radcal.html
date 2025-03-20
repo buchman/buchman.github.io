@@ -1,0 +1,104 @@
+<html>
+    <head>
+        <title>Radius Calculator</title>
+    </head>
+    <body>
+        <script type="text/javascript">
+            var equations = {
+                "rectangleRadius": {
+                    "description": "Finds radius of a rectangle with rounded corners",
+                    "input": {
+                        "a": {"description": "Length", "default": 2},
+                        "b": {"description": "Width", "default": 2},
+                        "l": {"description": "Diagonal", "default": 2},
+                        "c": {"description": "Rounded corner count", "default": 2}
+                    },
+                    "output": {
+                        "r": {"description": "Corner Radius", "equation": "((1 + Math.sqrt(2))*(Math.sqrt(input.a*input.a + input.b*input.b)-input.l)) / input.c"}
+                    }
+                },
+                "chordRad": {
+                    "description": "Finds radius based off of measuring a chord of the circle",
+                    "input": {
+                        "l": {"description": "Chord", "default": 1},
+                        "s": {"description": "Sagitta", "default": 1}
+                    },
+                    "output": {
+                        "r": {"description": "Radius", "equation": "(input.l * input.l + 4 * input.s * input.s)/(8 * input.s)"},
+                        "d": {"description": "Diameter", "equation": "output.r * 2"}
+                    }
+                }
+            };
+
+            var activeEquation = {};
+
+            function updateValues() {
+                var input = {};
+                var output = {};
+                for (let key in activeEquation.input) {
+                    input[key] = document.getElementById(activeEquation.name+"."+key).value;
+                }
+                for (let key in activeEquation.output) {
+                    output[key] = eval(activeEquation.output[key].equation);
+                    document.getElementById(activeEquation.name+"."+key).value = output[key];
+                }
+            }
+
+            function loadEquation() {
+                var activeEquationName = document.getElementById("dropdown").value;
+                activeEquation = equations[activeEquationName];
+                activeEquation.name = activeEquationName;
+
+                var tbl = document.getElementById("eqn");
+                if (tbl) {
+                    tbl.remove();
+                }
+
+                tbl = document.createElement('table');
+                tbl.id = "eqn";
+
+                for (let key in activeEquation.input) {
+                    var input = document.createElement('input');
+                    input.id = activeEquation.name + "." + key;
+                    input.type = "number";
+                    input.value = activeEquation.input[key].default;
+                    input.addEventListener('change', updateValues);
+
+                    var tr = tbl.insertRow();
+                    tr.insertCell().appendChild(document.createTextNode(key));
+                    tr.insertCell().appendChild(input);
+                    tr.insertCell().appendChild(document.createTextNode(activeEquation.input[key].description));
+                }
+                for (let key in activeEquation.output) {
+                    var input = document.createElement('input');
+                    input.id = activeEquation.name + "." + key;
+                    input.readOnly = true;
+
+                    var tr = tbl.insertRow();
+                    tr.insertCell().appendChild(document.createTextNode(key));
+                    tr.insertCell().appendChild(input);
+                    tr.insertCell().appendChild(document.createTextNode(activeEquation.output[key].description));
+                }
+                document.body.appendChild(tbl);
+                updateValues();
+            }
+
+            function addDropdown() {
+                var dropdown = document.createElement('select');
+                dropdown.id = "dropdown";
+                dropdown.addEventListener('change', loadEquation);
+                for (let key in equations) {
+                    var option = document.createElement('option');
+                    option.value = key;
+                    option.text = equations[key].description;
+                    dropdown.appendChild(option);
+                }
+                document.body.appendChild(dropdown);
+                loadEquation();
+            }
+
+            addDropdown();
+        </script>
+
+    </body>
+</html>
